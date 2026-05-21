@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALMATIN — Radiation Simulation Workstation v4.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ===== SCAN LINES OVERLAY ===== -->
+  <div class="scanlines"></div>
+  <div class="holographic-overlay"></div>
+
+  <!-- ===== CURSOR GLOW ===== -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- ===== ENGINEERING HUD ===== -->
+  <div class="eng-hud" id="engHud">
+    <div class="hud-alerts" id="hudAlerts">
+      <div class="hud-alert" data-severity="info">SYSTEM INITIALIZED</div>
+    </div>
+    <div class="hud-metrics">
+      <div class="hud-metric"><span class="hm-label">SOURCE ENERGY</span><span class="hm-value" id="hudSourceEnergy">80 kVp</span></div>
+      <div class="hud-metric"><span class="hm-label">LEAKAGE</span><span class="hm-value" id="hudLeakage">0.00 mGy/h</span></div>
+      <div class="hud-metric"><span class="hm-label">SHIELD</span><span class="hm-value" id="hudShieldStatus">OPTIMAL</span></div>
+      <div class="hud-metric"><span class="hm-label">DOSE RATE</span><span class="hm-value" id="hudDoseRate">0.00 mSv</span></div>
+    </div>
+  </div>
+
+  <!-- ===== NAVIGATION ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#hero" class="nav-logo">
+        <svg class="nav-logo-icon" width="32" height="32" viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="14" fill="none" stroke="#4dd4e8" stroke-width="1.5" opacity="0.6"/>
+          <circle cx="16" cy="16" r="6" fill="none" stroke="#4dd4e8" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="2" fill="#4dd4e8"/>
+          <line x1="16" y1="2" x2="16" y2="8" stroke="#4dd4e8" stroke-width="1" opacity="0.4"/>
+          <line x1="16" y1="24" x2="16" y2="30" stroke="#4dd4e8" stroke-width="1" opacity="0.4"/>
+          <line x1="2" y1="16" x2="8" y2="16" stroke="#4dd4e8" stroke-width="1" opacity="0.4"/>
+          <line x1="24" y1="16" x2="30" y2="16" stroke="#4dd4e8" stroke-width="1" opacity="0.4"/>
+        </svg>
+        <span class="nav-logo-text">ALMATIN</span>
+        <span class="nav-logo-sub">WORKSTATION v4</span>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#simulation" class="nav-link">Simulator</a>
+        <a href="#room-builder" class="nav-link">Room Builder</a>
+        <a href="#shield-stack" class="nav-link">Shield Stack</a>
+        <a href="#capabilities" class="nav-link">Capabilities</a>
+        <a href="#calculator" class="nav-link">Calculator</a>
+        <a href="#digital-twin" class="nav-link">Digital Twin</a>
+        <a href="#compliance" class="nav-link">Compliance</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- ===== 1. HERO SECTION ===== -->
+  <section class="hero section-reveal" id="hero">
+    <canvas class="hero-particles" id="heroParticles"></canvas>
+    <div class="hud-grid"></div>
+    <div class="hud-corner hud-corner--tl"></div>
+    <div class="hud-corner hud-corner--tr"></div>
+    <div class="hud-corner hud-corner--bl"></div>
+    <div class="hud-corner hud-corner--br"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        ALMATIN WORKSTATION v4.0 — RADIATION ENGINEERING SUITE
+      </div>
+      <h1 class="hero-title">
+        <span class="hero-title-sub">Radiation Infrastructure</span>
+        <span class="hero-title-main">ALMATIN</span>
+        <span class="hero-title-underline">Nuclear Engineering Simulation Platform</span>
+      </h1>
+      <p class="hero-desc">
+        Advanced radiation protection engineering workstation. Real-time physics simulation,
+        2D room planning, multi-layer shield analysis, and compliance verification.
+      </p>
+
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hero-stat-value" id="statProjects">247</span><span class="hero-stat-label">Projects Completed</span></div>
+        <div class="hero-stat"><span class="hero-stat-value" id="statCompliance">99.8</span><span class="hero-stat-label">% Compliance Rate</span></div>
+        <div class="hero-stat"><span class="hero-stat-value" id="statFacilities">89</span><span class="hero-stat-label">Facilities Protected</span></div>
+      </div>
+
+      <div class="hero-actions">
+        <a href="#simulation" class="btn btn-primary">Launch Workstation</a>
+        <a href="#room-builder" class="btn btn-secondary">Room Builder</a>
+      </div>
+    </div>
+
+    <div class="hero-readouts">
+      <div class="readout"><span class="readout-label">Background Rad</span><span class="readout-value" id="bgRadiation">0.12</span><span class="readout-unit">&#181;Sv/h</span></div>
+      <div class="readout"><span class="readout-label">Shield Integrity</span><span class="readout-value" id="shieldIntegrity">98.7</span><span class="readout-unit">%</span></div>
+      <div class="readout"><span class="readout-label">System Uptime</span><span class="readout-value" id="systemUptime">14,672</span><span class="readout-unit">hours</span></div>
+      <div class="readout"><span class="readout-label">Active Sensors</span><span class="readout-value" id="activeSensors">1,284</span><span class="readout-unit">online</span></div>
+    </div>
+  </section>
+
+  <!-- ===== 2. CAPABILITY STRIP ===== -->
+  <section class="capabilities section-reveal" id="capabilities">
+    <div class="section-header">
+      <span class="section-tag">CAPABILITIES</span>
+      <h2 class="section-title">Radiation Shielding Solutions</h2>
+      <p class="section-desc">Comprehensive infrastructure engineering for medical and nuclear environments</p>
+    </div>
+    <div class="caps-grid">
+      <div class="cap-card reveal-item" data-delay="0">
+        <div class="cap-icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="20" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><circle cx="24" cy="24" r="10" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="24" cy="24" r="3" fill="#4dd4e8" opacity="0.6"/></svg></div>
+        <h3>Cath Lab Shielding</h3>
+        <p>Lead-lined structural systems with 2.0–3.5 mm Pb equivalence. Full IEC 61331 compliance with real-time integrity monitoring.</p>
+        <div class="cap-specs"><span>Attenuation: 99.97%</span><span>Standards: IEC 61331</span></div>
+      </div>
+      <div class="cap-card reveal-item" data-delay="1">
+        <div class="cap-icon"><svg viewBox="0 0 48 48"><rect x="8" y="12" width="32" height="24" rx="3" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><circle cx="24" cy="24" r="6" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="24" cy="24" r="2" fill="#4dd4e8" opacity="0.6"/></svg></div>
+        <h3>PET/CT Suites</h3>
+        <p>Integrated shielding solutions for high-energy positron emission tomography. Borated polyethylene and lead composite systems.</p>
+        <div class="cap-specs"><span>Energy Range: 0.511 MeV</span><span>Neutron Mitigation</span></div>
+      </div>
+      <div class="cap-card reveal-item" data-delay="2">
+        <div class="cap-icon"><svg viewBox="0 0 48 48"><rect x="10" y="8" width="28" height="32" rx="4" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><circle cx="24" cy="20" r="8" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="24" cy="20" r="3" fill="#4dd4e8" opacity="0.5"/></svg></div>
+        <h3>Cyclotron Bunkers</h3>
+        <p>Heavy aggregate concrete bunkers with modular neutron shielding. 2.0–3.5 m thick walls with multi-layer attenuation.</p>
+        <div class="cap-specs"><span>Density: 4.5 g/cm&sup3;</span><span>Proton Energy: 18 MeV</span></div>
+      </div>
+      <div class="cap-card reveal-item" data-delay="3">
+        <div class="cap-icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><path d="M12 24 Q18 12 24 24 Q30 36 36 24" fill="none" stroke="#4dd4e8" stroke-width="1" opacity="0.5"/></svg></div>
+        <h3>Hybrid Neutron Systems</h3>
+        <p>Advanced boron-loaded shielding composites for neutron/gamma mixed fields. Custom formulations for research reactors.</p>
+        <div class="cap-specs"><span>Neutron Capture: 99.2%</span><span>Boron Loading: 5%</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 3. LIVE SIMULATION ENGINE ===== -->
+  <section class="simulation section-panel section-reveal" id="simulation">
+    <div class="section-header">
+      <span class="section-tag">SIMULATION WORKSTATION</span>
+      <h2 class="section-title">Advanced Radiation Shielding Simulator</h2>
+      <p class="section-desc">Real-time physics engine with inverse square law, multi-layer attenuation, neutron transport, and 2D room modeling</p>
+    </div>
+
+    <div class="sim-layout">
+      <!-- Controls Panel -->
+      <div class="sim-controls">
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="none" stroke="#4dd4e8" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="#4dd4e8"/></svg>
+            Source Configuration
+          </h3>
+
+          <div class="control-group">
+            <label class="control-label">Source Type <span class="src-badge" id="srcBadge">X-RAY</span></label>
+            <div class="control-select-wrap">
+              <select class="control-select" id="sourceType">
+                <option value="xray">X-Ray Tube (Diagnostic)</option>
+                <option value="ct">CT Scanner (128-slice)</option>
+                <option value="pet">PET Source (0.511 MeV)</option>
+                <option value="gamma">Gamma (Co-60)</option>
+                <option value="gamma2">Gamma (Ir-192)</option>
+                <option value="linac">Linac (6 MV)</option>
+                <option value="linac10">Linac (10 MV)</option>
+                <option value="linac15">Linac (15 MV)</option>
+                <option value="cyclotron">Cyclotron (18 MeV p+)</option>
+                <option value="neutron">Neutron Generator (14 MeV)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Source Energy / kVp</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="kvpSlider" min="40" max="150" value="80" step="1">
+              <span class="control-slider-value" id="kvpValue">80 kVp</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Workload (W)</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="workloadSlider" min="100" max="5000" value="500" step="10">
+              <span class="control-slider-value" id="workloadValue">500 mA·min/wk</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Exposure Time (min/wk)</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="exposureTime" min="10" max="600" value="60" step="5">
+              <span class="control-slider-value" id="exposureValue">60 min</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Distance from Source (m)</label>
+            <input type="number" class="control-input" id="distanceInput" value="2.0" min="0.5" max="20" step="0.1">
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Beam Angle (°)</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="beamAngle" min="0" max="180" value="45" step="1">
+              <span class="control-slider-value" id="beamAngleValue">45°</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Source Position (X, Y) in room</label>
+            <div class="control-room-dims">
+              <input type="number" class="control-input dim-input" id="sourcePosX" value="3.0" min="0.5" max="18" step="0.5">
+              <span class="dim-sep">,</span>
+              <input type="number" class="control-input dim-input" id="sourcePosY" value="2.5" min="0.5" max="18" step="0.5">
+              <span class="dim-unit">m</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Machine Orientation (°)</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="machineOrient" min="0" max="360" value="0" step="5">
+              <span class="control-slider-value" id="machineOrientValue">0°</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><rect x="3" y="3" width="10" height="10" rx="1" fill="none" stroke="#4dd4e8" stroke-width="1.2"/><line x1="6" y1="8" x2="10" y2="8" stroke="#4dd4e8" stroke-width="1"/></svg>
+            Barrier &amp; Room Parameters
+          </h3>
+
+          <div class="dual-col">
+            <div class="control-group">
+              <label class="control-label">Occupancy Factor (T)</label>
+              <div class="control-select-wrap">
+                <select class="control-select" id="occupancyFactor">
+                  <option value="1">Full (1.0) — Control areas</option>
+                  <option value="0.5" selected>Partial (0.5) — Corridors</option>
+                  <option value="0.25">Occasional (0.25) — Waiting rooms</option>
+                  <option value="0.125">Minimal (0.125) — Storage</option>
+                  <option value="0.0625">Remote (0.0625) — Outdoor</option>
+                </select>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Use Factor (U)</label>
+              <div class="control-select-wrap">
+                <select class="control-select" id="useFactor">
+                  <option value="1">Full (1.0) — Primary beam</option>
+                  <option value="0.5" selected>Partial (0.5) — Secondary wall</option>
+                  <option value="0.25">Low (0.25) — Floor/Ceiling</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="dual-col">
+          <div class="control-group">
+            <label class="control-label">Shield Material</label>
+            <div class="control-select-wrap">
+              <select class="control-select" id="shieldMaterial">
+                <option value="lead">Lead (Pb)</option>
+                <option value="concrete">Concrete</option>
+                <option value="steel">Steel</option>
+                <option value="borated">Borated Polyethylene</option>
+                <option value="barium">Barium Plaster</option>
+                <option value="tungsten">Tungsten</option>
+                <option value="hdpe">HDPE</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Shield Thickness (mm)</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="thicknessSlider" min="1" max="200" value="50" step="1">
+              <span class="control-slider-value" id="thicknessValue">50 mm</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Wall Thickness (mm)</label>
+            <div class="control-slider-wrap">
+              <input type="range" class="control-slider" id="wallThicknessSlider" min="50" max="1000" value="300" step="10">
+              <span class="control-slider-value" id="wallThicknessValue">300 mm</span>
+            </div>
+          </div>
+            <div class="control-group">
+              <label class="control-label">Room Occupancy</label>
+              <input type="number" class="control-input" id="roomOccupancy" value="4" min="1" max="50" step="1">
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Room Dimensions (L × W × H)</label>
+            <div class="control-room-dims">
+              <input type="number" class="control-input dim-input" id="roomLength" value="6.0" min="2" max="20" step="0.5">
+              <span class="dim-sep">×</span>
+              <input type="number" class="control-input dim-input" id="roomWidth" value="5.0" min="2" max="20" step="0.5">
+              <span class="dim-sep">×</span>
+              <input type="number" class="control-input dim-input" id="roomHeight" value="3.5" min="2" max="10" step="0.5">
+              <span class="dim-unit">m</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-checkbox">
+              <input type="checkbox" id="neutronMode">
+              <span class="check-track"><span class="check-thumb"></span></span>
+              Neutron Mode — Activate Borated Shielding
+            </label>
+          </div>
+        </div>
+
+        <!-- Measurement Points Panel -->
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" fill="none" stroke="#4dd4e8" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="#4dd4e8"/></svg>
+            Radiation Measurement Points
+          </h3>
+          <p style="font-size:11px;color:var(--text-secondary);margin-bottom:12px;">Click on the room builder canvas to place measurement detectors.</p>
+          <div class="detector-list" id="detectorList">
+            <div class="detector-item">
+              <span class="detector-marker" style="background:var(--green)"></span>
+              <span class="detector-label">D1 — Control Room</span>
+              <span class="detector-value" id="detector1Val">0.02 µSv/h</span>
+            </div>
+            <div class="detector-item">
+              <span class="detector-marker" style="background:var(--orange)"></span>
+              <span class="detector-label">D2 — Corridor</span>
+              <span class="detector-value" id="detector2Val">0.15 µSv/h</span>
+            </div>
+            <div class="detector-item">
+              <span class="detector-marker" style="background:var(--cyan)"></span>
+              <span class="detector-label">D3 — Adjacent Room</span>
+              <span class="detector-value" id="detector3Val">0.08 µSv/h</span>
+            </div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="addDetectorBtn" style="margin-top:8px;">+ Add Detector</button>
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="sim-results">
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 14 L8 4 L14 14" fill="none" stroke="#4dd4e8" stroke-width="1.2"/><circle cx="8" cy="10" r="1.5" fill="#4dd4e8"/></svg>
+            Live Outputs — Shield Analysis
+          </h3>
+
+          <div class="results-grid">
+            <div class="result-item">
+              <span class="result-label">Leakage Radiation</span>
+              <span class="result-value" id="leakageRadiation">0.00</span>
+              <span class="result-unit">mGy/h</span>
+              <div class="result-bar" id="leakageBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Annual Dose</span>
+              <span class="result-value" id="annualDose">0.00</span>
+              <span class="result-unit">mSv/yr</span>
+              <div class="result-bar" id="doseBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Attenuation</span>
+              <span class="result-value" id="attenuationPercent">0.00</span>
+              <span class="result-unit">%</span>
+              <div class="result-bar" id="attenBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Scatter Intensity</span>
+              <span class="result-value" id="scatterIntensity">0.00</span>
+              <span class="result-unit">µGy/s</span>
+              <div class="result-bar" id="scatterBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Shield Efficiency</span>
+              <span class="result-value" id="shieldEfficiency">0.00</span>
+              <span class="result-unit">%</span>
+              <div class="result-bar" id="shieldEffBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Dose Outside Wall</span>
+              <span class="result-value" id="doseOutside">0.00</span>
+              <span class="result-unit">µSv/h</span>
+              <div class="result-bar" id="doseOutsideBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item" id="neutronResultItem" style="display:none">
+              <span class="result-label">Neutron Flux Attenuation</span>
+              <span class="result-value" id="neutronAttenuation">0.00</span>
+              <span class="result-unit">%</span>
+              <div class="result-bar" id="neutronBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Barrier Transmission (B)</span>
+              <span class="result-value" id="barrierTransmission">0.00</span>
+              <span class="result-unit">factor</span>
+              <div class="result-bar" id="barrierBar"><div class="result-bar-fill"></div></div>
+            </div>
+          </div>
+
+          <div class="compliance-status" id="complianceStatus">
+            <div class="compliance-badge badge-pending">
+              <span class="compliance-dot"></span>Calculating...
+            </div>
+            <div class="compliance-details">
+              <span class="compliance-ref">AERB · NCRP-147 · IEC 61331 · ICRP</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Enhanced Heatmap -->
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="1" fill="none" stroke="#4dd4e8" stroke-width="1.2"/></svg>
+            Radiation Field Map — Thermal View
+          </h3>
+          <div class="heatmap-container">
+            <canvas id="radiationHeatmap" width="500" height="350"></canvas>
+            <div class="heatmap-legend">
+              <span class="legend-label">Safe</span>
+              <div class="legend-gradient"></div>
+              <span class="legend-label">Hazard</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 4. ROOM BUILDER — ADVANCED FACILITY PLANNER ===== -->
+  <section class="facility-planner section-panel" id="room-builder">
+    <div class="section-header">
+      <span class="section-tag">FACILITY PLANNER</span>
+      <h2 class="section-title">2D Radiation Facility Planner Workstation</h2>
+      <p class="section-desc">Professional nuclear engineering CAD system — design rooms, place sources, simulate radiation spread, validate shielding</p>
+    </div>
+
+    <!-- Top Command Bar -->
+    <div class="fp-commandbar glass-panel reveal-item">
+      <div class="fp-cmd-left">
+        <span class="fp-project-name">
+          <svg width="14" height="14" viewBox="0 0 14 14"><rect x="1" y="1" width="12" height="12" rx="2" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="7" cy="7" r="2" fill="#4dd4e8"/></svg>
+          <span id="fpProjectName">UNNAMED PROJECT</span>
+        </span>
+        <span class="fp-status-dot status-green"></span>
+        <span class="fp-status-text" id="fpStatusText">READY</span>
+      </div>
+      <div class="fp-cmd-metrics">
+        <span class="fp-metric"><span class="fp-metric-label">DIM</span><span id="fpDimLabel">6.0 × 5.0 m</span></span>
+        <span class="fp-metric"><span class="fp-metric-label">LEAK</span><span id="fpLeakLabel">0.00</span></span>
+        <span class="fp-metric"><span class="fp-metric-label">DOSE</span><span id="fpDoseLabel">0.00</span></span>
+        <span class="fp-metric"><span class="fp-metric-label">ATTEN</span><span id="fpAttenLabel">0%</span></span>
+      </div>
+      <div class="fp-cmd-actions">
+        <button class="btn btn-sm btn-secondary" id="fpSaveBtn" title="Save Project">
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2h8v8H2z" fill="none" stroke="#4dd4e8" stroke-width="1"/><path d="M3 8V3h6v5" fill="none" stroke="#4dd4e8" stroke-width="1"/></svg>
+          Save
+        </button>
+        <button class="btn btn-sm btn-secondary" id="fpExportBtn" title="Export as PNG">Export</button>
+        <button class="btn btn-sm btn-secondary" id="fpSimulateBtn" title="Run full simulation">
+          <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="6" cy="6" r="2" fill="#4dd4e8"/></svg>
+          Simulate
+        </button>
+        <button class="btn btn-sm btn-secondary" id="fpHeatmapToggle">Heatmap</button>
+        <button class="btn btn-sm btn-secondary" id="fpFullscreenBtn" title="Fullscreen">
+          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 5V2h3M7 2h3v3M10 7v3H7M5 10H2V7" fill="none" stroke="#4dd4e8" stroke-width="1"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="fp-workspace">
+      <!-- LEFT SIDEBAR — Engineering Tools -->
+      <div class="fp-tools glass-panel reveal-item">
+        <div class="fp-tools-header">
+          <span class="fp-tools-title">TOOLS</span>
+          <span class="fp-tools-shortcut" id="fpCurrentTool">SELECT</span>
+        </div>
+        <div class="fp-tools-grid">
+          <button class="fp-tool active" data-tool="select" title="Select / Move"><svg viewBox="0 0 24 24"><path d="M4 4l12 5-4 2 5 5-2 2-5-5-2 4z" fill="none" stroke="#4dd4e8" stroke-width="1.5"/></svg><span>Select</span></button>
+          <button class="fp-tool" data-tool="wall" title="Standard Wall"><svg viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="1" fill="none" stroke="#4dd4e8" stroke-width="1.5"/></svg><span>Wall</span></button>
+          <button class="fp-tool" data-tool="shield-wall" title="Shield Wall"><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2" fill="none" stroke="#33ff99" stroke-width="1.5"/></svg><span>Shield</span></button>
+          <button class="fp-tool" data-tool="room" title="Draw Room"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2" fill="none" stroke="#4dd4e8" stroke-width="1.5"/></svg><span>Room</span></button>
+          <button class="fp-tool" data-tool="door" title="Place Door"><svg viewBox="0 0 24 24"><path d="M6 20V4h12v16z" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><circle cx="10" cy="14" r="1" fill="#4dd4e8"/></svg><span>Door</span></button>
+          <button class="fp-tool" data-tool="window" title="Place Window"><svg viewBox="0 0 24 24"><rect x="6" y="8" width="12" height="8" rx="1" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><line x1="12" y1="8" x2="12" y2="16" stroke="#4dd4e8" stroke-width="1"/></svg><span>Window</span></button>
+          <button class="fp-tool" data-tool="control-room" title="Control Room"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="#33ff99" stroke-width="1.5"/><circle cx="12" cy="12" r="3" fill="none" stroke="#33ff99" stroke-width="1"/></svg><span>Control</span></button>
+          <button class="fp-tool" data-tool="corridor" title="Corridor / Hallway"><svg viewBox="0 0 24 24"><path d="M6 12h12M10 8v8" fill="none" stroke="#4dd4e8" stroke-width="1.5"/></svg><span>Corridor</span></button>
+          <button class="fp-tool" data-tool="source" title="Radiation Source"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="none" stroke="#ff6b35" stroke-width="1.5"/><circle cx="12" cy="12" r="2" fill="#ff6b35"/></svg><span>Source</span></button>
+          <button class="fp-tool" data-tool="detector" title="Detector Node"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="none" stroke="#33ff99" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="#33ff99"/></svg><span>Detector</span></button>
+          <button class="fp-tool" data-tool="measure" title="Measurement Grid"><svg viewBox="0 0 24 24"><line x1="4" y1="20" x2="20" y2="4" stroke="#ff6b35" stroke-width="1"/><circle cx="4" cy="20" r="1.5" fill="#ff6b35"/><circle cx="20" cy="4" r="1.5" fill="#ff6b35"/></svg><span>Measure</span></button>
+          <button class="fp-tool" data-tool="annotation" title="Annotation / Label"><svg viewBox="0 0 24 24"><path d="M12 4l8 8-8 8-8-8z" fill="none" stroke="#4dd4e8" stroke-width="1.5"/></svg><span>Label</span></button>
+          <button class="fp-tool" data-tool="delete" title="Delete Tool"><svg viewBox="0 0 24 24"><path d="M6 6h12M8 6V4h8v2" fill="none" stroke="#ff3333" stroke-width="1.5"/><path d="M8 6v12h8V6" fill="none" stroke="#ff3333" stroke-width="1.5"/></svg><span>Delete</span></button>
+        </div>
+        <div class="fp-tools-footer">
+          <span class="fp-shortcut-hint">⌘Z Undo</span>
+          <span class="fp-shortcut-hint">⌘⇧Z Redo</span>
+          <span class="fp-shortcut-hint">⌘S Export</span>
+        </div>
+      </div>
+
+      <!-- CENTER — Facility Planner Canvas -->
+      <div class="fp-canvas-area glass-panel reveal-item" id="fpCanvasArea">
+        <div class="fp-canvas-toolbar">
+          <div class="fp-canvas-zoom">
+            <button class="fp-zoom-btn" id="fpZoomOut" title="Zoom Out">−</button>
+            <span class="fp-zoom-level" id="fpZoomLevel">100%</span>
+            <button class="fp-zoom-btn" id="fpZoomIn" title="Zoom In">+</button>
+            <button class="fp-zoom-btn" id="fpZoomReset" title="Reset Zoom">⟲</button>
+          </div>
+          <div class="fp-canvas-info">
+            <span id="fpGridInfo">GRID: 0.5 m</span>
+            <span id="fpCursorPos">X: 0.0  Y: 0.0</span>
+            <span id="fpObjCount">0 objects</span>
+          </div>
+          <button class="btn btn-sm btn-secondary" id="fpClearCanvas" style="font-size:9px;padding:4px 10px;">Clear All</button>
+        </div>
+        <div class="fp-canvas-wrap" id="fpCanvasWrap">
+          <canvas id="facilityCanvas" width="900" height="600"></canvas>
+          <div class="fp-heatmap-overlay" id="fpHeatmapOverlay">
+            <canvas id="fpHeatmapCanvas" width="900" height="600"></canvas>
+          </div>
+          <div class="fp-ruler-t" id="fpRulerT"></div>
+          <div class="fp-ruler-l" id="fpRulerL"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDEBAR — Properties & Outputs -->
+      <div class="fp-sidebar-right glass-panel reveal-item">
+        <!-- Properties Panel -->
+        <div class="fp-props-section">
+          <div class="fp-props-header">
+            <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="2" fill="none" stroke="#4dd4e8" stroke-width="1"/><line x1="4" y1="6" x2="8" y2="6" stroke="#4dd4e8" stroke-width="0.8"/></svg>
+            <span>PROPERTIES</span>
+          </div>
+          <div class="fp-props-content" id="fpPropsContent">
+            <div class="fp-prop-empty">
+              <svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="#4dd4e8" stroke-width="1" opacity="0.3"/><circle cx="12" cy="12" r="4" fill="none" stroke="#4dd4e8" stroke-width="1" opacity="0.3"/><circle cx="12" cy="12" r="1.5" fill="#4dd4e8" opacity="0.3"/></svg>
+              <span>Select an object to edit properties</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Outputs -->
+        <div class="fp-props-section">
+          <div class="fp-props-header">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 10 L6 2 L10 10" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="6" cy="7" r="1" fill="#4dd4e8"/></svg>
+            <span>SIMULATION OUTPUTS</span>
+          </div>
+          <div class="fp-outputs" id="fpOutputs">
+            <div class="fp-output-item">
+              <span class="fp-output-label">Leakage</span>
+              <span class="fp-output-value" id="fpOutLeakage">0.0000</span>
+              <span class="fp-output-unit">mGy/h</span>
+              <div class="fp-output-bar"><div class="fp-output-fill" id="fpOutLeakBar"></div></div>
+            </div>
+            <div class="fp-output-item">
+              <span class="fp-output-label">Annual Dose</span>
+              <span class="fp-output-value" id="fpOutDose">0.00</span>
+              <span class="fp-output-unit">mSv/yr</span>
+              <div class="fp-output-bar"><div class="fp-output-fill" id="fpOutDoseBar"></div></div>
+            </div>
+            <div class="fp-output-item">
+              <span class="fp-output-label">Attenuation</span>
+              <span class="fp-output-value" id="fpOutAtten">0.00</span>
+              <span class="fp-output-unit">%</span>
+              <div class="fp-output-bar"><div class="fp-output-fill" id="fpOutAttenBar"></div></div>
+            </div>
+            <div class="fp-output-item">
+              <span class="fp-output-label">Shield Efficiency</span>
+              <span class="fp-output-value" id="fpOutShieldEff">0.00</span>
+              <span class="fp-output-unit">%</span>
+              <div class="fp-output-bar"><div class="fp-output-fill" id="fpOutShieldBar"></div></div>
+            </div>
+            <div class="fp-output-item">
+              <span class="fp-output-label">Scatter Intensity</span>
+              <span class="fp-output-value" id="fpOutScatter">0.00</span>
+              <span class="fp-output-unit">µGy/s</span>
+              <div class="fp-output-bar"><div class="fp-output-fill" id="fpOutScatterBar"></div></div>
+            </div>
+            <div class="fp-output-item">
+              <span class="fp-output-label">Neutron Flux</span>
+              <span class="fp-output-value" id="fpOutNeutron">0.00</span>
+              <span class="fp-output-unit">n/cm²·s</span>
+              <div class="fp-output-bar"><div class="fp-output-fill" id="fpOutNeutronBar"></div></div>
+            </div>
+            <div class="fp-output-item">
+              <span class="fp-output-label">Compliance</span>
+              <span class="fp-output-value" id="fpOutCompliance" style="font-size:11px;color:var(--green);">AERB ✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcuts overlay -->
+    <div class="fp-shortcuts-hint-bar">
+      <span><kbd>1-9</kbd> Tools</span>
+      <span><kbd>⌘Z</kbd> Undo</span>
+      <span><kbd>⌘⇧Z</kbd> Redo</span>
+      <span><kbd>⌘S</kbd> Export</span>
+      <span><kbd>Del</kbd> Delete</span>
+      <span><kbd>Esc</kbd> Deselect</span>
+      <span><kbd>+/-</kbd> Zoom</span>
+      <span><kbd>H</kbd> Toggle Heatmap</span>
+    </div>
+  </section>
+
+  <!-- ===== 5. MULTI-MATERIAL SHIELD STACK ===== -->
+  <section class="shield-stack section-panel section-reveal" id="shield-stack">
+    <div class="section-header">
+      <span class="section-tag">SHIELD STACK</span>
+      <h2 class="section-title">Multi-Material Shielding Analyzer</h2>
+      <p class="section-desc">Add, remove, and reorder layered shielding materials — real-time attenuation profiling</p>
+    </div>
+
+    <div class="stack-layout">
+      <div class="stack-controls glass-panel reveal-item">
+        <h3 class="sim-panel-title">Layer Management</h3>
+        <div class="stack-add-form">
+          <select class="control-select" id="stackMaterialSelect">
+            <option value="lead">Lead (Pb)</option>
+            <option value="concrete">Concrete</option>
+            <option value="steel">Steel</option>
+            <option value="borated">Borated Polyethylene</option>
+            <option value="barium">Barium Plaster</option>
+            <option value="tungsten">Tungsten</option>
+            <option value="hdpe">HDPE</option>
+          </select>
+          <input type="number" class="control-input" id="stackThicknessInput" value="10" min="1" max="500" step="1" style="width:80px;">
+          <span class="dim-unit">mm</span>
+          <button class="btn btn-primary btn-sm" id="addLayerBtn">+ Add Layer</button>
+        </div>
+        <div class="stack-list" id="stackList">
+          <div class="stack-layer-item" data-mat="lead" data-thick="2">
+            <span class="stack-layer-drag">&#9776;</span>
+            <span class="stack-layer-color" style="background:#4dd4e8"></span>
+            <span class="stack-layer-name">Lead</span>
+            <span class="stack-layer-thick">2.0 mm</span>
+            <span class="stack-layer-mu">μ=28.0</span>
+            <div class="stack-layer-actions">
+              <button class="stack-layer-up">&#9650;</button>
+              <button class="stack-layer-down">&#9660;</button>
+              <button class="stack-layer-remove">&#10005;</button>
+            </div>
+          </div>
+          <div class="stack-layer-item" data-mat="concrete" data-thick="150">
+            <span class="stack-layer-drag">&#9776;</span>
+            <span class="stack-layer-color" style="background:#445566"></span>
+            <span class="stack-layer-name">Concrete</span>
+            <span class="stack-layer-thick">150 mm</span>
+            <span class="stack-layer-mu">μ=0.32</span>
+            <div class="stack-layer-actions">
+              <button class="stack-layer-up">&#9650;</button>
+              <button class="stack-layer-down">&#9660;</button>
+              <button class="stack-layer-remove">&#10005;</button>
+            </div>
+          </div>
+          <div class="stack-layer-item" data-mat="steel" data-thick="3">
+            <span class="stack-layer-drag">&#9776;</span>
+            <span class="stack-layer-color" style="background:#6688aa"></span>
+            <span class="stack-layer-name">Steel</span>
+            <span class="stack-layer-thick">3.0 mm</span>
+            <span class="stack-layer-mu">μ=2.0</span>
+            <div class="stack-layer-actions">
+              <button class="stack-layer-up">&#9650;</button>
+              <button class="stack-layer-down">&#9660;</button>
+              <button class="stack-layer-remove">&#10005;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stack-visual glass-panel reveal-item">
+        <h3 class="sim-panel-title">Stack Attenuation</h3>
+        <div class="wall-stack" id="dynamicWallStack"></div>
+        <div class="stack-metrics" id="stackMetrics">
+          <div class="stack-metric"><span class="stack-metric-label">Total Thickness</span><span class="stack-metric-value" id="stackTotalThick">155.0 mm</span></div>
+          <div class="stack-metric"><span class="stack-metric-label">Total Attenuation</span><span class="stack-metric-value text-green" id="stackTotalAtten">99.97%</span></div>
+          <div class="stack-metric"><span class="stack-metric-label">Effective μ</span><span class="stack-metric-value" id="stackEffMu">0.45 cm⁻¹</span></div>
+          <div class="stack-metric"><span class="stack-metric-label">Lead Equivalent</span><span class="stack-metric-value" id="stackLeadEq">2.3 mm</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 6. CASE STUDIES ===== -->
+  <section class="cases section-panel section-reveal" id="cases">
+    <div class="section-header">
+      <span class="section-tag">CASE STUDIES</span>
+      <h2 class="section-title">Engineering in Practice</h2>
+      <p class="section-desc">Real-world radiation shielding solutions across healthcare and research</p>
+    </div>
+    <div class="cases-grid">
+      <div class="case-card glass-panel reveal-item">
+        <div class="case-comparison">
+          <div class="compare-container" id="compare1">
+            <div class="compare-before">
+              <div class="compare-label before-label">Before</div>
+              <svg viewBox="0 0 200 140"><rect x="10" y="10" width="180" height="120" rx="6" fill="#0a1628" stroke="#ff3333" stroke-width="1" opacity="0.5"/><rect x="50" y="30" width="100" height="60" rx="3" fill="none" stroke="#ff3333" stroke-width="0.8" opacity="0.3"/><text x="100" y="65" text-anchor="middle" fill="#ff3333" font-size="8" font-family="IBM Plex Mono" opacity="0.6">INAD EQUATE</text><text x="100" y="78" text-anchor="middle" fill="#ff3333" font-size="7" font-family="IBM Plex Mono" opacity="0.4">SHIELDING</text></svg>
+            </div>
+            <div class="compare-after">
+              <div class="compare-label after-label">After</div>
+              <svg viewBox="0 0 200 140"><rect x="10" y="10" width="180" height="120" rx="6" fill="#0a1628" stroke="#4dd4e8" stroke-width="1" opacity="0.5"/><rect x="30" y="25" width="140" height="70" rx="3" fill="none" stroke="#4dd4e8" stroke-width="0.8" opacity="0.3"/><rect x="25" y="20" width="6" height="100" fill="#4dd4e8" opacity="0.12"/><rect x="169" y="20" width="6" height="100" fill="#4dd4e8" opacity="0.12"/><text x="100" y="62" text-anchor="middle" fill="#4dd4e8" font-size="8" font-family="IBM Plex Mono" opacity="0.6">OPTIMIZED</text><text x="100" y="75" text-anchor="middle" fill="#4dd4e8" font-size="7" font-family="IBM Plex Mono" opacity="0.4">3.2 mm Pb</text></svg>
+            </div>
+            <input type="range" class="compare-slider" min="0" max="100" value="50">
+            <div class="compare-handle"></div>
+          </div>
+        </div>
+        <div class="case-content">
+          <h3>City Hospital — Cath Lab Upgrade</h3>
+          <p>Complete shielding retrofit for 3 cath labs. Reduced occupational dose by 94% while maintaining operational efficiency.</p>
+          <div class="case-metrics"><span>Dose Reduction: <strong>94%</strong></span><span>Compliance: <strong class="text-green">AERB ✓</strong></span><span>Material: <strong>3.2 mm Pb</strong></span></div>
+        </div>
+      </div>
+      <div class="case-card glass-panel reveal-item">
+        <div class="case-comparison">
+          <div class="compare-container" id="compare2">
+            <div class="compare-before">
+              <div class="compare-label before-label">Before</div>
+              <svg viewBox="0 0 200 140"><rect x="10" y="10" width="180" height="120" rx="6" fill="#0a1628" stroke="#ff3333" stroke-width="1" opacity="0.5"/><rect x="60" y="25" width="80" height="40" rx="3" fill="none" stroke="#ff3333" stroke-width="0.8" opacity="0.3"/><text x="100" y="85" text-anchor="middle" fill="#ff3333" font-size="8" font-family="IBM Plex Mono" opacity="0.6">HIGH SCATTER</text></svg>
+            </div>
+            <div class="compare-after">
+              <div class="compare-label after-label">After</div>
+              <svg viewBox="0 0 200 140"><rect x="10" y="10" width="180" height="120" rx="6" fill="#0a1628" stroke="#4dd4e8" stroke-width="1" opacity="0.5"/><rect x="40" y="20" width="120" height="50" rx="3" fill="none" stroke="#4dd4e8" stroke-width="0.8" opacity="0.3"/><rect x="20" y="60" width="160" height="4" fill="#4dd4e8" opacity="0.08"/><text x="100" y="90" text-anchor="middle" fill="#4dd4e8" font-size="8" font-family="IBM Plex Mono" opacity="0.6">NEUTRON SHIELD</text></svg>
+            </div>
+            <input type="range" class="compare-slider" min="0" max="100" value="50">
+            <div class="compare-handle"></div>
+          </div>
+        </div>
+        <div class="case-content">
+          <h3>National Cancer Center — PET/CT</h3>
+          <p>Integrated neutron/gamma shielding for high-energy PET/CT suite with cyclotron adjacency. Borated polyethylene composites.</p>
+          <div class="case-metrics"><span>Neutron Reduction: <strong>97%</strong></span><span>Compliance: <strong class="text-green">NCRP-147 ✓</strong></span><span>Material: <strong>BPE + Pb</strong></span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 7. SHIELDING CALCULATOR ===== -->
+  <section class="calculator section-panel section-reveal" id="calculator">
+    <div class="section-header">
+      <span class="section-tag">SHIELDING CALCULATOR</span>
+      <h2 class="section-title">Barrier Thickness Analyzer</h2>
+      <p class="section-desc">Interactive wall stack visualization and attenuation profiling with multi-material comparison</p>
+    </div>
+    <div class="calc-layout">
+      <div class="calc-visual glass-panel reveal-item">
+        <h3 class="sim-panel-title">Wall Stack Visualization</h3>
+        <div class="wall-stack" id="wallStack">
+          <div class="wall-layer" data-layer="lead" style="flex:2"><span class="layer-label">Lead</span><span class="layer-thickness" id="wallLeadThickness">2.0 mm</span></div>
+          <div class="wall-layer" data-layer="air" style="flex:0.5"><span class="layer-label">Air Gap</span><span class="layer-thickness">10 mm</span></div>
+          <div class="wall-layer" data-layer="steel" style="flex:1"><span class="layer-label">Steel</span><span class="layer-thickness">1.5 mm</span></div>
+          <div class="wall-layer" data-layer="concrete" style="flex:3"><span class="layer-label">Concrete</span><span class="layer-thickness" id="wallConcreteThickness">150 mm</span></div>
+          <div class="wall-layer" data-layer="finish" style="flex:0.3"><span class="layer-label">Finish</span><span class="layer-thickness">5 mm</span></div>
+        </div>
+        <div class="wall-legend">
+          <span><span class="wall-dot" style="background:#4dd4e8"></span>Lead</span>
+          <span><span class="wall-dot" style="background:#2a4a5a"></span>Air Gap</span>
+          <span><span class="wall-dot" style="background:#6688aa"></span>Steel</span>
+          <span><span class="wall-dot" style="background:#445566"></span>Concrete</span>
+          <span><span class="wall-dot" style="background:#334455"></span>Finish</span>
+        </div>
+      </div>
+      <div class="calc-graph glass-panel reveal-item">
+        <h3 class="sim-panel-title">Attenuation Profile — Multi-Material</h3>
+        <div class="graph-container">
+          <canvas id="attenuationGraph" width="500" height="280"></canvas>
+        </div>
+        <div class="graph-controls">
+          <button class="graph-btn active" data-energy="low">Low Energy</button>
+          <button class="graph-btn" data-energy="medium">Medium Energy</button>
+          <button class="graph-btn" data-energy="high">High Energy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 8. DIGITAL TWIN ===== -->
+  <section class="digital-twin section-panel section-reveal" id="digital-twin">
+    <div class="section-header">
+      <span class="section-tag">DIGITAL TWIN</span>
+      <h2 class="section-title">Infrastructure Intelligence</h2>
+      <p class="section-desc">Real-time digital twin with animated particle system and beam visualization</p>
+    </div>
+    <div class="twin-container glass-panel reveal-item">
+      <div class="twin-canvas-wrap">
+        <canvas id="digitalTwinCanvas" width="700" height="450"></canvas>
+      </div>
+      <div class="twin-data">
+        <div class="twin-metric"><span class="twin-metric-icon">⚡</span><div><span class="twin-metric-label">Structural Load</span><span class="twin-metric-value" id="structuralLoad">72.3</span><span class="twin-metric-unit">%</span></div></div>
+        <div class="twin-metric"><span class="twin-metric-icon">♦</span><div><span class="twin-metric-label">Shield Fatigue</span><span class="twin-metric-value" id="shieldFatigue">3.2</span><span class="twin-metric-unit">%</span></div></div>
+        <div class="twin-metric"><span class="twin-metric-icon">◎</span><div><span class="twin-metric-label">Thermal Load</span><span class="twin-metric-value" id="thermalLoad">42.6</span><span class="twin-metric-unit">°C</span></div></div>
+        <div class="twin-metric"><span class="twin-metric-icon">◉</span><div><span class="twin-metric-label">Integrity Score</span><span class="twin-metric-value text-green" id="integrityScore">96.8</span><span class="twin-metric-unit">%</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 9. UPLOAD SECTION ===== -->
+  <section class="upload section-panel section-reveal" id="upload">
+    <div class="section-header">
+      <span class="section-tag">DOCUMENT UPLOAD</span>
+      <h2 class="section-title">Shielding Analysis Upload</h2>
+      <p class="section-desc">Upload facility blueprints, shielding specifications, or compliance documents</p>
+    </div>
+    <div class="upload-container glass-panel reveal-item">
+      <div class="upload-dropzone" id="uploadDropzone">
+        <div class="upload-icon"><svg width="48" height="48" viewBox="0 0 48 48"><path d="M24 6 L24 30 M12 18 Q24 6 36 18" fill="none" stroke="#4dd4e8" stroke-width="1.5" stroke-linecap="round"/><rect x="8" y="28" width="32" height="14" rx="3" fill="none" stroke="#4dd4e8" stroke-width="1.5" opacity="0.5"/></svg></div>
+        <h3 class="upload-title">Drop files or click to upload</h3>
+        <p class="upload-desc">PDF, DXF, DWG, SVG — Blueprints, specs, compliance docs</p>
+        <input type="file" class="upload-input" id="uploadInput" multiple accept=".pdf,.dxf,.dwg,.svg,.png,.jpg,.jpeg,.tiff">            <button class="btn btn-primary upload-btn" type="button">Select Files</button>
+      </div>
+      <div class="upload-preview" id="uploadPreview">
+        <div class="upload-preview-header"><span>Uploaded Files</span><span id="fileCount">0 files</span></div>
+        <div class="upload-file-list" id="fileList"></div>
+        <div class="upload-scan-status" id="scanStatus"><div class="scan-line"></div><span>Awaiting documents...</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 10. COMPLIANCE SECTION ===== -->
+  <section class="compliance section-panel section-reveal" id="compliance">
+    <div class="section-header">
+      <span class="section-tag">COMPLIANCE</span>
+      <h2 class="section-title">Regulatory Standards</h2>
+      <p class="section-desc">Full compliance with international radiation shielding standards</p>
+    </div>
+    <div class="compliance-grid">
+      <div class="comp-card glass-panel reveal-item">
+        <div class="comp-badge"><svg width="40" height="40" viewBox="0 0 40 40"><path d="M20 4 L36 12 L36 28 L20 36 L4 28 L4 12 Z" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><circle cx="20" cy="20" r="6" fill="none" stroke="#4dd4e8" stroke-width="1"/><circle cx="20" cy="20" r="2" fill="#4dd4e8"/></svg></div>
+        <h3>AERB — Atomic Energy Regulatory Board</h3>
+        <p>Comprehensive compliance with AERB safety guidelines for radiation shielding in medical and industrial facilities across India.</p>
+        <div class="comp-status"><span class="status-dot status-green"></span>Fully Compliant</div>
+        <ul class="comp-list"><li>AERB Safety Code No. AERB/RF/SC-1</li><li>Annual dose limit: &lt; 1 mSv public</li><li>Shielding attestation certified</li></ul>
+      </div>
+      <div class="comp-card glass-panel reveal-item">
+        <div class="comp-badge"><svg width="40" height="40" viewBox="0 0 40 40"><rect x="6" y="6" width="28" height="28" rx="4" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><line x1="14" y1="20" x2="26" y2="20" stroke="#4dd4e8" stroke-width="1.5"/><polyline points="16,16 12,20 16,24" fill="none" stroke="#4dd4e8" stroke-width="1"/><polyline points="24,16 28,20 24,24" fill="none" stroke="#4dd4e8" stroke-width="1"/></svg></div>
+        <h3>NCRP-147 — Structural Shielding Design</h3>
+        <p>National Council on Radiation Protection standard for design of structural shielding for diagnostic medical x-ray facilities.</p>
+        <div class="comp-status"><span class="status-dot status-green"></span>Fully Compliant</div>
+        <ul class="comp-list"><li>Barrier transmission calculations</li><li>Workload &amp; occupancy factors</li><li>Primary &amp; secondary barrier design</li></ul>
+      </div>
+      <div class="comp-card glass-panel reveal-item">
+        <div class="comp-badge"><svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="#4dd4e8" stroke-width="1.5"/><path d="M14 20 Q20 14 26 20 Q20 26 14 20" fill="none" stroke="#4dd4e8" stroke-width="1" opacity="0.5"/><circle cx="20" cy="20" r="3" fill="none" stroke="#4dd4e8" stroke-width="1"/></svg></div>
+        <h3>IEC 61331 — Protective Devices</h3>
+        <p>International Electrotechnical Commission standard for protective devices against diagnostic medical X-radiation.</p>
+        <div class="comp-status"><span class="status-dot status-green"></span>Fully Compliant</div>
+        <ul class="comp-list"><li>Lead equivalence testing</li><li>Attenuation performance verification</li><li>Type testing &amp; certification</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 11. FOOTER ===== -->
+  <footer class="footer section-reveal">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <svg class="footer-logo" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#4dd4e8" stroke-width="1.5" opacity="0.5"/><circle cx="20" cy="20" r="8" fill="none" stroke="#4dd4e8" stroke-width="1.2"/><circle cx="20" cy="20" r="3" fill="#4dd4e8" opacity="0.8"/></svg>
+        <h3 class="footer-brand-name">ALMATIN</h3>
+        <p class="footer-brand-desc">Radiation Infrastructure Engineering — Designing and certifying shielding systems for a safer future.</p>
+      </div>
+      <div class="footer-links"><h4>Solutions</h4><a href="#">Cath Lab Shielding</a><a href="#">PET/CT Suites</a><a href="#">Cyclotron Bunkers</a><a href="#">Neutron Shielding</a></div>
+      <div class="footer-links"><h4>Standards</h4><a href="#">AERB Guidelines</a><a href="#">NCRP-147</a><a href="#">IEC 61331</a><a href="#">ICRP Recommendations</a></div>
+      <div class="footer-links"><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Contact</a><a href="#">Privacy Policy</a></div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2025 ALMATIN Radiation Infrastructure Engineering</span>
+      <span class="footer-badge">ISO 9001:2024 · AERB Licensed · NCRP Certified</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
