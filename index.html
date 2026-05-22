@@ -169,6 +169,7 @@
                 <option value="linac10">Linac (10 MV)</option>
                 <option value="linac15">Linac (15 MV)</option>
                 <option value="cyclotron">Cyclotron (18 MeV p+)</option>
+                <option value="cathlab">Cath Lab (Fluoroscopy)</option>
                 <option value="neutron">Neutron Generator (14 MeV)</option>
               </select>
             </div>
@@ -271,6 +272,7 @@
                 <option value="steel">Steel</option>
                 <option value="borated">Borated Polyethylene</option>
                 <option value="barium">Barium Plaster</option>
+                <option value="brick">Brick (Clay, 1.2 g/cm³)</option>
                 <option value="tungsten">Tungsten</option>
                 <option value="hdpe">HDPE</option>
               </select>
@@ -413,6 +415,152 @@
             <div class="compliance-details">
               <span class="compliance-ref">AERB · NCRP-147 · IEC 61331 · ICRP</span>
             </div>
+          </div>
+        </div>
+
+        <!-- Scatter Analysis Panel -->
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="#ff6b35" stroke-width="1.2"/><circle cx="8" cy="8" r="1.5" fill="#ff6b35"/><path d="M2 2 L6 6 M14 2 L10 6 M2 14 L6 10 M14 14 L10 10" stroke="#ff6b35" stroke-width="0.5" opacity="0.4"/></svg>
+            Scatter Analysis — NCRP-147 &amp; Lead Apron
+          </h3>
+          <div class="results-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="result-item">
+              <span class="result-label">Scatter Type</span>
+              <span class="result-value" id="scatterType" style="font-size:11px;color:var(--cyan);">PATIENT SCATTER</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Scatter Distance (room center)</span>
+              <span class="result-value" id="scatterDistance" style="font-size:11px;">0.00</span>
+              <span class="result-unit">m</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Staff Scatter Dose @ 1m</span>
+              <span class="result-value" id="staffScatterDose">0.00</span>
+              <span class="result-unit">µGy/s</span>
+              <div class="result-bar" id="staffScatterBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Staff @ 0.5m (Physician)</span>
+              <span class="result-value" id="staffDose05m">0.00</span>
+              <span class="result-unit">µGy/s</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Staff @ 2m (Technologist)</span>
+              <span class="result-value" id="staffDose2m">0.00</span>
+              <span class="result-unit">µGy/s</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Scatter Model</span>
+              <span class="result-value" id="scatterModelLabel" style="font-size:9px;color:var(--cyan);">NCRP-147 + ESAK</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Angular Factor (KN+N147)</span>
+              <span class="result-value" id="angularFactor" style="font-size:11px;">1.000</span>
+            </div>
+            <div class="result-item" style="grid-column:1/-1;padding-top:6px;">
+              <div style="display:flex;gap:12px;flex-wrap:wrap;width:100%;align-items:center;">
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <label style="font-size:9px;color:var(--text-secondary);">Field Size</label>
+                  <input type="number" class="control-input" id="fieldSize" value="400" min="10" max="2500" step="10" style="width:60px;height:24px;font-size:9px;">
+                  <span style="font-size:8px;color:var(--text-secondary);">cm²</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <label style="font-size:9px;color:var(--text-secondary);">Patient Thickness</label>
+                  <input type="number" class="control-input" id="patientThick" value="30" min="5" max="60" step="1" style="width:50px;height:24px;font-size:9px;">
+                  <span style="font-size:8px;color:var(--text-secondary);">cm</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;">
+                  <label style="font-size:9px;color:var(--text-secondary);">Operator Angle</label>
+                  <input type="range" class="control-slider" id="scatterAngle" min="0" max="180" value="90" step="5" style="width:70px;height:3px;">
+                  <span style="font-size:9px;color:var(--cyan);font-family:var(--font-mono);" id="scatterAngleValue">90°</span>
+                </div>
+              </div>
+            </div>
+            <!-- Lead Apron Section -->
+            <div class="result-item" style="grid-column:1/-1;border-top:1px solid rgba(77,212,232,0.08);padding-top:8px;margin-top:4px;">
+              <span class="result-label">Lead Apron Thickness</span>
+              <select class="control-select" id="apronThickness" style="font-size:10px;padding:2px 6px;width:auto;min-width:120px;height:auto;">
+                <option value="0">None</option>
+                <option value="0.25">0.25 mm Pb</option>
+                <option value="0.35" selected>0.35 mm Pb (Typical)</option>
+                <option value="0.50">0.50 mm Pb (Heavy)</option>
+              </select>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Apron Transmission</span>
+              <span class="result-value" id="apronTransmission">100.00</span>
+              <span class="result-unit">%</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Effective Staff Dose (Aproned) @ 1m</span>
+              <span class="result-value" id="effectiveStaffDose" style="color:var(--green);">0.00</span>
+              <span class="result-unit">µGy/s</span>
+              <div class="result-bar" id="effDoseBar"><div class="result-bar-fill"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brick Wall Analysis -->
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="4" width="12" height="8" rx="1" fill="none" stroke="#ff6b35" stroke-width="1.2"/><rect x="2" y="4" width="12" height="3" fill="#ff6b35" opacity="0.15"/><rect x="3" y="5" width="4" height="2" fill="#ff6b35" opacity="0.1"/></svg>
+            Room Wall Attenuation — Brick Analysis
+          </h3>
+          <div class="results-grid" style="grid-template-columns:1fr 1fr 1fr;">
+            <div class="result-item">
+              <span class="result-label">Room Size (ft)</span>
+              <span class="result-value" id="roomDimFeet" style="font-size:11px;color:var(--cyan);">0.0' × 0.0'</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">9" Brick Wall Attenuation</span>
+              <span class="result-value" id="brickWallAttn">0.00</span>
+              <span class="result-unit">%</span>
+              <div class="result-bar" id="brickBar"><div class="result-bar-fill"></div></div>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Transmission through Brick</span>
+              <span class="result-value" id="brickWallResult" style="color:var(--green);">0.00</span>
+              <span class="result-unit">%</span>
+            </div>
+          </div>
+          <div class="compliance-badge" id="brickCompliance" style="margin-top:10px;font-size:11px;display:inline-flex;">
+            <span class="compliance-dot"></span>AERB — Analyzing...
+          </div>
+          <div class="wall-legend" style="margin-top:10px;">
+            <span><span class="wall-dot" style="background:#ff6b35"></span>9" Brick (228.6 mm)</span>
+            <span><span class="wall-dot" style="background:#445566"></span>Density: 1.2 g/cm³</span>
+            <span><span class="wall-dot" style="background:#4dd4e8"></span>Room: 20' × 20' default</span>
+          </div>
+        </div>
+
+        <!-- Scatter Comparison Table -->
+        <div class="sim-panel glass-panel reveal-item eng-panel">
+          <h3 class="sim-panel-title">
+            <svg width="16" height="16" viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2" fill="none" stroke="#4dd4e8" stroke-width="1.2"/><line x1="2" y1="8" x2="14" y2="8" stroke="#4dd4e8" stroke-width="0.8"/><line x1="8" y1="2" x2="8" y2="14" stroke="#4dd4e8" stroke-width="0.8"/></svg>
+            Scatter Dose Comparison — All Source Types
+          </h3>
+          <p style="font-size:10px;color:var(--text-secondary);margin-bottom:8px;">Calculated at current workload (500 mA·min/wk), distance from isocenter, no shielding.</p>
+          <div style="overflow-x:auto;">
+            <table class="comparison-table" id="scatterComparisonTable" style="width:100%;border-collapse:collapse;font-size:10px;">
+              <thead>
+                <tr style="border-bottom:1px solid rgba(77,212,232,0.15);">
+                  <th style="text-align:left;padding:4px 6px;color:var(--cyan);font-weight:500;">Source Type</th>
+                  <th style="text-align:right;padding:4px 6px;color:var(--text-secondary);">@ 0.5m</th>
+                  <th style="text-align:right;padding:4px 6px;color:var(--text-secondary);">@ 1.0m</th>
+                  <th style="text-align:right;padding:4px 6px;color:var(--text-secondary);">@ 2.0m</th>
+                  <th style="text-align:right;padding:4px 6px;color:var(--text-secondary);">Aproned @ 1m</th>
+                  <th style="text-align:right;padding:4px 6px;color:var(--text-secondary);">Units</th>
+                </tr>
+              </thead>
+              <tbody id="scatterTableBody">
+                <tr><td colspan="6" style="text-align:center;padding:12px;color:var(--text-secondary);">Computing...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="wall-legend" style="margin-top:6px;">
+            <span><span class="wall-dot" style="background:#4dd4e8"></span>Current source highlighted</span>
+            <span><span class="wall-dot" style="background:var(--orange)"></span>Apron: 0.35 mm Pb (adjustable above)</span>
           </div>
         </div>
 
@@ -630,6 +778,7 @@
             <option value="steel">Steel</option>
             <option value="borated">Borated Polyethylene</option>
             <option value="barium">Barium Plaster</option>
+            <option value="brick">Brick (Clay, 1.2 g/cm³)</option>
             <option value="tungsten">Tungsten</option>
             <option value="hdpe">HDPE</option>
           </select>
